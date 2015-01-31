@@ -1,13 +1,44 @@
 require 'sinatra/base'
 require 'json'
+require 'data_mapper'
+require 'bcrypt'
+
+require_relative '../lib/user.rb'
 
 class ChitterAPI < Sinatra::Base
+
+  env = ENV['RACK_ENV'] || 'development'
+
+  DataMapper.setup(:default, "postgres://localhost/chitter_api_#{env}")
+
+  require './lib/user'
+
+  DataMapper.finalize
+  DataMapper.auto_migrate!
+
   get '/' do
     'Hello ChitterAPI!'
   end
 
   get '/api' do
     'Hello'
+  end
+
+  post '/api/users/new' do
+    content_type :json
+
+    data = JSON.parse(request.body.read)
+
+    @user = User.new(email: data[:email],
+                     username: data[:username],
+                     display_name: data[:display_name],
+                     password: data[:password],
+                     password_confirmation: data[:password_confirmation])
+    if @user.save
+      {:success => 'ok'}.to_json
+    else
+      halt 500
+    end
   end
 
   # start the server if ruby file executed directly

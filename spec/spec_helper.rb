@@ -18,9 +18,11 @@
 require 'sinatra'
 require 'rack/test'
 require 'rspec'
-require File.expand_path '../../app/server.rb', __FILE__
+require 'database_cleaner'
 
 ENV['RACK_ENV'] = 'test'
+
+require './app/server.rb'
 
 module RSpecMixin
   include Rack::Test::Methods
@@ -33,6 +35,19 @@ RSpec.configure do |config|
   # assertions if you prefer.
 
   include RSpecMixin
+
+  config.before(:suite) do
+    DatabaseCleaner.strategy = :transaction
+    DatabaseCleaner.clean_with(:truncation)
+  end
+
+  config.before(:each) do
+    DatabaseCleaner.start
+  end
+
+  config.after(:each) do
+    DatabaseCleaner.clean
+  end
 
   config.expect_with :rspec do |expectations|
     # This option will default to `true` in RSpec 4. It makes the `description`
