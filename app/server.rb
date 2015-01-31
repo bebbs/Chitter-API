@@ -14,7 +14,7 @@ class ChitterAPI < Sinatra::Base
   require './lib/user'
 
   DataMapper.finalize
-  DataMapper.auto_migrate!
+  DataMapper.auto_upgrade!
 
   get '/' do
     'Hello ChitterAPI!'
@@ -27,7 +27,7 @@ class ChitterAPI < Sinatra::Base
   post '/api/users/new' do
     content_type :json
 
-    data = JSON.parse(request.body.read)
+    data = JSON.parse(request.body.read, symbolize_names: true)
 
     @user = User.new(email: data[:email],
                      username: data[:username],
@@ -35,7 +35,7 @@ class ChitterAPI < Sinatra::Base
                      password: data[:password],
                      password_confirmation: data[:password_confirmation])
     if @user.save
-      {:success => 'ok'}.to_json
+      status 201
     else
       halt 500
     end
