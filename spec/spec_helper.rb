@@ -20,6 +20,7 @@ require 'rack/test'
 require 'rspec'
 require 'database_cleaner'
 
+
 ENV['RACK_ENV'] = 'test'
 
 require './app/server.rb'
@@ -27,6 +28,10 @@ require './app/server.rb'
 module RSpecMixin
   include Rack::Test::Methods
   def app() ChitterAPI end
+end
+
+def last_response_data
+    JSON.parse(last_response.body)
 end
 
 RSpec.configure do |config|

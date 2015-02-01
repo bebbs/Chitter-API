@@ -7,6 +7,7 @@ class User
   property :username, String, unique: true
   property :display_name, String
   property :password_digest, Text
+  property :token, String
 
   def password=(password)
     @password = password

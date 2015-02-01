@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'helpers/user_management'
 
 describe 'Registering a new user' do
 
@@ -34,8 +35,8 @@ end
 
 describe 'User logging in' do
 
-  let(:good_login) { {:email => 'test@test.com', :password => 'test'}.to_json }
-  let(:bad_login) { {:email => 'test@test.com', :password => 'wrong'}.to_json }
+  let(:good_login) { {'email' => 'test@test.com', 'password' => 'test'}.to_json }
+  let(:bad_login) { {'email' => 'test@test.com', 'password' => 'wrong'}.to_json }
 
   before(:all) do
     User.create(email: 'test@test.com',
@@ -47,20 +48,14 @@ describe 'User logging in' do
 
   it 'With the correct credentials' do
     sign_in(good_login)
+    expect(last_response_data['token']).to match /^[a-f0-9]{32}$/
     expect(last_response.status).to eq 200
   end
 
   it 'With the incorrect credentials' do
     sign_in(bad_login)
-    expect(last_response.status).to eq 500
+    expect(last_response.status).to eq 403
   end
 
 end
 
-def sign_up(content)
-  post '/api/users/new', content, {'Content-Type' => 'application/json'}
-end
-
-def sign_in(content)
-  post '/api/sessions/new', content, {'Content-Type' => 'application/json'}
-end

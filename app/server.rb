@@ -2,6 +2,7 @@ require 'sinatra/base'
 require 'json'
 require 'data_mapper'
 require 'bcrypt'
+require 'securerandom'
 
 require_relative '../lib/user.rb'
 
@@ -16,13 +17,6 @@ class ChitterAPI < Sinatra::Base
 
   require './lib/user'
 
-  enable :sessions
-  set :session_secret, 'super secret'
-
-  get '/' do
-    'Hello ChitterAPI!'
-  end
-
   get '/api' do
     'Hello'
   end
@@ -35,22 +29,20 @@ class ChitterAPI < Sinatra::Base
                     password: data[:password],
                     password_confirmation: data[:password_confirmation])
     if user.save
-      session[:user_id] = user.id 
       status 201 
     else
       halt 500
     end
   end
 
-  post '/api/sessions/new' do
+  post '/api/tokens' do
     data = handle_json
     user = User.authenticate(data[:email], data[:password])
-
     if user
-      session[:user_id] = user.id
-      status 200
-    else
-      halt 500
+      token = SecureRandom.hex(16)
+      user.token = token
+      user.save
+      {'token' => user.token}.to_json
     end
   end
 
