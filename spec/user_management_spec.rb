@@ -33,28 +33,48 @@ describe 'Registering a new user' do
 
 end
 
-describe 'User logging in' do
+describe 'User sessions' do
 
   let(:good_login) { {'email' => 'test@test.com', 'password' => 'test'}.to_json }
   let(:bad_login) { {'email' => 'test@test.com', 'password' => 'wrong'}.to_json }
 
   before(:all) do
-    User.create(email: 'test@test.com',
+    @user = User.create(email: 'test@test.com',
                 username: '@bebbs',
                 display_name: 'Josh',
                 password: 'test',
                 password_confirmation: 'test')
   end
 
-  it 'With the correct credentials' do
-    sign_in(good_login)
-    expect(last_response_data['token']).to match /^[a-f0-9]{32}$/
-    expect(last_response.status).to eq 200
+  context 'Logging in' do
+
+    it 'With the correct credentials' do
+      sign_in(good_login)
+      expect(last_response_data['token']).to match /^[a-f0-9]{32}$/
+      expect(last_response.status).to eq 200
+    end
+
+    it 'With the incorrect credentials' do
+      sign_in(bad_login)
+      expect(last_response.status).to eq 401
+    end
+
   end
 
-  it 'With the incorrect credentials' do
-    sign_in(bad_login)
-    expect(last_response.status).to eq 401
+  context 'Logging out' do
+
+    it 'As a logged in user' do
+      sign_in(good_login)
+      token = last_response_data['token']
+      delete 'api/tokens', 'token' => token
+      expect(@user.token).to be_nil
+    end
+
+    it 'As a logged out user' do
+      delete 'api/tokens', 'token' => 'abcdefg'
+      expect(last_response.status).to eq 404
+    end
+
   end
 
 end

@@ -28,17 +28,20 @@ class ChitterAPI < Sinatra::Base
                     display_name: data[:display_name],
                     password: data[:password],
                     password_confirmation: data[:password_confirmation])
-    if user.save
-      status 201 
-    else
-      halt 500
-    end
+    user.save ? (status 201) : (halt 500)
+
   end
 
   post '/api/tokens' do
     data = handle_json
     user = User.authenticate(data[:email], data[:password])
-    (user) ? (generate_token(user)) : (status 401)
+    user ? (generate_token(user)) : (status 401)
+  end
+
+  delete 'api/tokens' do
+    data = handle_json
+    user = User.find{|user| user.token == data[:token]}
+    user ? (user.token = nil) : (status 403)
   end
 
   def handle_json
