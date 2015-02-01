@@ -54,7 +54,7 @@ describe 'User logging in' do
 
   it 'With the incorrect credentials' do
     sign_in(bad_login)
-    expect(last_response.status).to eq 403
+    expect(last_response.status).to eq 401
   end
 
 end

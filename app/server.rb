@@ -38,17 +38,19 @@ class ChitterAPI < Sinatra::Base
   post '/api/tokens' do
     data = handle_json
     user = User.authenticate(data[:email], data[:password])
-    if user
-      token = SecureRandom.hex(16)
-      user.token = token
-      user.save
-      {'token' => user.token}.to_json
-    end
+    (user) ? (generate_token(user)) : (status 401)
   end
 
   def handle_json
     content_type :json
     JSON.parse(request.body.read, symbolize_names: true)
+  end
+
+  def generate_token(user)
+    token = SecureRandom.hex(16)
+    user.token = token
+    user.save
+    {'token' => user.token}.to_json
   end
 
   # start the server if ruby file executed directly
