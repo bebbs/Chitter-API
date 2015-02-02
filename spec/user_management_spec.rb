@@ -4,8 +4,8 @@ require 'helpers/user_management'
 describe 'Registering a new user' do
 
   let(:body) { {:email => 'test@test.com', 
-                :username => 'Josh', 
-                :display_name => '@bebbs',
+                :username => '@josh1', 
+                :display_name => 'Josh',
                 :password => 'test',
                 :password_confirmation => 'test' }.to_json 
               }
@@ -19,7 +19,6 @@ describe 'Registering a new user' do
 
   it 'With valid details' do
     expect{sign_up(body)}.to change(User, :count).by 1
-    expect(User.first.email).to eq('test@test.com')
   end
 
   it 'With a password that doesn\'t match' do
@@ -66,13 +65,13 @@ describe 'User sessions' do
     it 'As a logged in user' do
       sign_in(good_login)
       token = last_response_data['token']
-      delete 'api/tokens', 'token' => token
-      expect(@user.token).to be_nil
+      delete '/api/tokens', {'token' => token}.to_json
+      expect(last_response_data['token']).to be nil
     end
 
-    it 'As a logged out user' do
-      delete 'api/tokens', 'token' => 'abcdefg'
-      expect(last_response.status).to eq 404
+    it 'As an already logged out user' do
+      delete '/api/tokens', {'token' => 'abcdefg'}.to_json
+      expect(last_response.status).to eq 403
     end
 
   end

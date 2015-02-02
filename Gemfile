@@ -8,6 +8,7 @@ gem 'database_cleaner'
 gem 'bcrypt-ruby'
 gem 'rack-flash3'
 gem 'pg'
+gem 'byebug'
 
 group :development, :test do
 
