@@ -16,7 +16,7 @@ describe 'Posting a peep' do
     it 'Can post a peep' do
       sign_up_and_in
       post '/api/peeps/new', body, {'Content-Type' => 'application/json'}
-      expect(last_response.body).to eq("Got to here")
+      expect(last_response.body).to include 'This is the first test peep'
     end
 
   end

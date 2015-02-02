@@ -49,11 +49,7 @@ class ChitterAPI < Sinatra::Base
     data = handle_json
     user = verify_user(data)
     peep = Peep.new(content: data['content'], user_id: user.id, created_at: Time.now)
-    if peep.save
-      peep.to_json
-    else 
-      halt 500
-    end
+    peep.save ? peep.to_json : (halt 500)
   end
 
   def handle_json
